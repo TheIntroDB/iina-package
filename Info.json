@@ -1,7 +1,7 @@
 {
   "name": "TheIntroDB",
   "identifier": "org.theintrodb.iina-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TheIntroDB's IINA Plugin",
   "author": {
     "name": "TIDB Developer Team",
@@ -28,5 +28,5 @@
     "autoSkipTypes": "intro,recap"
   },
   "ghRepo": "TheIntroDB/iina-package",
-  "ghVersion": 3
+  "ghVersion": 4
 }
