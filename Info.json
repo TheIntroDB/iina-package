@@ -28,5 +28,5 @@
     "autoSkipTypes": "intro,recap"
   },
   "ghRepo": "TheIntroDB/iina-package",
-  "ghVersion": 1
+  "ghVersion": 2
 }
