@@ -1,0 +1,30 @@
+{
+  "name": "TheIntroDB",
+  "identifier": "org.theintrodb.iina-plugin",
+  "version": "0.1.0",
+  "description": "TheIntroDB's IINA Plugin",
+  "author": {
+    "name": "TIDB Developer Team",
+    "email": "hello@theintrodb.org",
+    "url": "https://theintrodb.org"
+  },
+  "entry": "dist/index.js",
+  "globalEntry": "dist/global.js",
+  "permissions": [
+    "show-osd",
+    "show-alert",
+    "video-overlay",
+    "network-request",
+    "file-system"
+  ],
+  "allowedDomains": ["*"],
+  "preferencesPage": "pref.html",
+  "preferenceDefaults": {
+    "tmdbApiKey": "",
+    "tidbApiKey": "",
+    "autoSkip": false,
+    "autoSkipTypes": "intro,recap"
+  },
+  "ghRepo": "TheIntroDB/iina-package",
+  "ghVersion": 1
+}
