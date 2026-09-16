@@ -14,10 +14,12 @@
     "show-osd",
     "show-alert",
     "video-overlay",
-    "network-request",
-    "file-system"
+    "network-request"
   ],
-  "allowedDomains": ["*"],
+  "allowedDomains": [
+    "api.theintrodb.org",
+    "api.themoviedb.org"
+  ],
   "preferencesPage": "pref.html",
   "preferenceDefaults": {
     "tmdbApiKey": "",
