@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@fifth/scene-parser':
-        specifier: npm:@jsr/fifth__scene-parser@latest
-        version: '@jsr/fifth__scene-parser@0.1.0'
+        specifier: jsr:0.1.1
+        version: '@jsr/fifth__scene-parser@0.1.1'
       parcel:
         specifier: ^2.8.3
         version: 2.16.4(@swc/helpers@0.5.23)
@@ -42,8 +42,8 @@ importers:
 
 packages:
 
-  '@jsr/fifth__scene-parser@0.1.0':
-    resolution: {integrity: sha512-CtvUHrYxxTcq2L7Ry50orEMbW/CmAc8sJXK2rZPDhSdIOkH0CY02mJ5bDvMdpEXa7mDgiruJNvz5w6ENzQvblQ==, tarball: https://npm.jsr.io/~/11/@jsr/fifth__scene-parser/0.1.0.tgz}
+  '@jsr/fifth__scene-parser@0.1.1':
+    resolution: {integrity: sha512-lZT1g2jvaJDIkvPwvwX0uToYwe/ji5IMJWVAFxhocmdKj46UgFwHQMNOrLmuvY+eSPnyLnnuXsTyo3vzllfAFw==, tarball: https://npm.jsr.io/~/11/@jsr/fifth__scene-parser/0.1.1.tgz}
 
   '@jsr/hongminhee__iso639-1@1.3.20090901':
     resolution: {integrity: sha512-6ugYCG4ZlH48b/SWz6fNBseW1jmNa8HpYyw0jU7fCPtN6iM6Pu/RievQf/dEkNbP02RWk1xILeQhHNxQq9Sxkg==, tarball: https://npm.jsr.io/~/11/@jsr/hongminhee__iso639-1/1.3.20090901.tgz}
@@ -915,7 +915,7 @@ packages:
 
 snapshots:
 
-  '@jsr/fifth__scene-parser@0.1.0':
+  '@jsr/fifth__scene-parser@0.1.1':
     dependencies:
       '@jsr/hongminhee__iso639-1': 1.3.20090901
 

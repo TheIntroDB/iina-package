@@ -3,3 +3,5 @@ allowBuilds:
   '@swc/core': true
   lmdb: true
   msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@jsr/fifth__scene-parser@0.1.1'
