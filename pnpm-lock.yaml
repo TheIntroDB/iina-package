@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@fifth/scene-parser':
-        specifier: npm:@jsr/fifth__scene-parser
+        specifier: npm:@jsr/fifth__scene-parser@latest
         version: '@jsr/fifth__scene-parser@0.1.0'
       parcel:
         specifier: ^2.8.3
