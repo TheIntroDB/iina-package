@@ -1,4 +1,8 @@
-# iina-package
-TheIntroDB Plugin for IINA!
+# TheIntroDB IINA Package
 
-To install, open up IINA, click Plugin -> Manage Plugins -> Install From GitHub -> Then add ours `TheIntroDB/iina-package` and you're good to go!
+Skip intro, recap, credits, and preview segments with TheIntroDB in IINA for MacOS
+
+## Installation
+Open IINA settings, click Plugins -> Install From GitHub -> Then add `https://github.com/TheIntroDB/iina-package` and install the package!
+
+License: GPLv3
