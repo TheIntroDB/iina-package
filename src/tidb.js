@@ -2,7 +2,7 @@ import { parseTitle } from "@fifth/scene-parser";
 
 const { http, console } = iina;
 
-export const TIDB_API_URL = "https://api.theintrodb.org/v3/media";
+export const TIDB_API_URL = "https://api.theintrodb.org/v4/media";
 const KINDS = ["intro", "recap", "credits", "preview"];
 
 // ---- filename -> title/year/season/episode ---------------------------------
