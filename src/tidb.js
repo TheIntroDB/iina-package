@@ -108,6 +108,11 @@ function buildSegments(data, durationSec = 0) {
       const startMs = seg.start_ms, endMs = seg.end_ms;
       if (startMs === 0 && endMs === 0) continue; // "no segment"
       if (endMs == null || endMs === 0) {
+        // Only credits/preview may carry a null end, and those are exactly the
+        // types that always carry a start (the API partitions the two:
+        // SegmentAllowsNullEnd vs SegmentRequiresStart), so a null start never
+        // reaches here — it is handled above. A start of exactly 0 here means
+        // "credits from 0:00 to the end of the file", which is not a skip target.
         if (startMs > 0) segments.push({ kind, start: startMs / 1000, end: null });
       } else {
         let start = (startMs || 0) / 1000;
