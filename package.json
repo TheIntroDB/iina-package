@@ -6,6 +6,7 @@
   "scripts": {
     "serve-overlay": "parcel serve ui/overlay/index.html --dist-dir dist/ui/overlay",
     "build": "rm -rf dist && parcel build .",
+    "verify": "node scripts/verify-dist.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
