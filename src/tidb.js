@@ -1,9 +1,20 @@
 import { parseTitle } from "@fifth/scene-parser";
 
+import { RateLimitError, rateLimitFrom } from "./rateLimit";
+
 const { http, console } = iina;
 
 export const TIDB_API_URL = "https://api.theintrodb.org/v4/media";
 const KINDS = ["intro", "recap", "credits", "preview"];
+
+// Epoch seconds the daily budget is spent until, set when a 429 says so. The
+// budget is per account/IP rather than per file, so this outlives a file change.
+let limitedUntil = 0;
+
+/** Seconds left on a spent budget, 0 when there is none. */
+export function rateLimitRemaining() {
+  return Math.max(0, Math.ceil(limitedUntil - Date.now() / 1000));
+}
 
 // ---- filename -> title/year/season/episode ---------------------------------
 
@@ -71,6 +82,13 @@ export async function tmdbSearch(title, year, isTv, tmdbKey) {
 // ---- TIDB segment fetch -----------------------------------------------------
 
 export async function fetchSegments({ tmdbId, imdbId, season, episode, durationMs, apiKey }) {
+  const held = rateLimitRemaining();
+  if (held > 0) {
+    // Inside the wait the API named. Asking again would spend another request
+    // against a budget that is already gone and earn another 429.
+    console.log(`[TheIntroDB] daily limit still in force for ${held}s, not asking`);
+    throw new RateLimitError({ kind: "usage", seconds: held, code: "held" });
+  }
   // built with plain string concatenation, not URLSearchParams — that's a
   // browser/Node global not guaranteed to exist in IINA's JS runtime, and its
   // absence here was previously failing before this function could log anything.
@@ -90,6 +108,15 @@ export async function fetchSegments({ tmdbId, imdbId, season, episode, durationM
   console.log(`[TheIntroDB] TIDB status=${res.statusCode}`);
 
   if (res.statusCode === 404 || res.statusCode === 400) return null; // no data for this media
+  if (res.statusCode === 429) {
+    // `http.get` gives back the body, not the headers, so the wait comes from
+    // the body -- same instant as Retry-After. See TheIntroDB/.github
+    // docs/rate-limit-contract.md.
+    const limit = rateLimitFrom(res.data ?? res.text);
+    if (limit.kind === "usage") limitedUntil = Date.now() / 1000 + limit.seconds;
+    console.log(`[TheIntroDB] TIDB 429: ${limit.kind}, ${limit.seconds}s`);
+    throw new RateLimitError(limit);
+  }
   if (res.statusCode !== 200) throw new Error(`TheIntroDB: HTTP ${res.statusCode}`);
 
   const data = res.data ?? JSON.parse(res.text);

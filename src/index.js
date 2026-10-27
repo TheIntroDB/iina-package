@@ -2,11 +2,14 @@ import {
   identify, tmdbSearch, fetchSegments,
   currentSegment, segmentsToMpvChapters,
 } from "./tidb.js";
+import { RateLimitError, formatWait } from "./rateLimit.js";
 
 const { event, core, mpv, menu, overlay, preferences, console } = iina;
 
 const BUILT_IN_TMDB_KEY = process.env.TMDB_READ_API_KEY || "";
 const MIN_REMAINING_TO_SHOW = 5; // don't show the button if the segment ends this soon anyway
+const MAX_RATE_LIMIT_RETRIES = 2; // a burst clears in ~10s; this is not a retry loop
+let rateLimitRetries = 0;
 
 const OVERLAY_CSS = `
   body { margin: 0; background: transparent; }
@@ -171,6 +174,29 @@ async function loadForCurrentFile() {
     found = await fetchSegments({ tmdbId, imdbId, season, episode, durationMs, apiKey });
   } catch (err) {
     console.log(`[TheIntroDB] fetchSegments threw: ${err}`);
+    if (!(err instanceof RateLimitError)) return;
+    const { kind, seconds } = err.rateLimit;
+    if (kind === "usage") {
+      // Nothing clears a spent daily budget before the window rolls over, so say
+      // when it returns rather than retrying into the same wall.
+      console.log(`[TheIntroDB] daily limit reached, resumes in ${seconds}s`);
+      core.osd(`TheIntroDB: daily limit reached, resumes in ${formatWait(seconds)}`);
+      return;
+    }
+    // A burst: wait the time the API named, then ask again a couple of times.
+    if (rateLimitRetries >= MAX_RATE_LIMIT_RETRIES) {
+      console.log("[TheIntroDB] rate limited, giving up");
+      core.osd("TheIntroDB: rate limited, giving up for this file");
+      return;
+    }
+    rateLimitRetries++;
+    console.log(`[TheIntroDB] rate limited, retrying in ${seconds}s`);
+    core.osd(`TheIntroDB: rate limited, retrying in ${formatWait(seconds)}`);
+    setTimeout(() => {
+      loadForCurrentFile().catch((e) => {
+        console.log(`[TheIntroDB] retry after rate limit failed: ${e}`);
+      });
+    }, seconds * 1000);
     return;
   }
 
@@ -201,6 +227,7 @@ event.on("iina.window-loaded", () => {
   setInterval(tick, 400);
 
   event.on("iina.file-loaded", () => {
+    rateLimitRetries = 0; // a new file gets its own retry budget
     loadAutoSkipPrefs();
     loadForCurrentFile().catch((err) => {
       console.log(`[TheIntroDB] loadForCurrentFile failed: ${err}`);
