@@ -2,11 +2,17 @@ import {
   identify, tmdbSearch, fetchSegments,
   currentSegment, segmentsToMpvChapters,
 } from "./tidb.js";
+import { RateLimitError, formatWait } from "./rateLimit.js";
 
 const { event, core, mpv, menu, overlay, preferences, console } = iina;
 
 const BUILT_IN_TMDB_KEY = process.env.TMDB_READ_API_KEY || "";
 const MIN_REMAINING_TO_SHOW = 5; // don't show the button if the segment ends this soon anyway
+const MAX_RATE_LIMIT_RETRIES = 2; // a burst clears in ~10s; this is not a retry loop
+let rateLimitRetries = 0;
+// Bumped on every file load, so a scheduled retry can tell whether the file it
+// was scheduled for is still the one playing.
+let fileGeneration = 0;
 
 const OVERLAY_CSS = `
   body { margin: 0; background: transparent; }
@@ -171,6 +177,39 @@ async function loadForCurrentFile() {
     found = await fetchSegments({ tmdbId, imdbId, season, episode, durationMs, apiKey });
   } catch (err) {
     console.log(`[TheIntroDB] fetchSegments threw: ${err}`);
+    if (!(err instanceof RateLimitError)) return;
+    const { kind, seconds, scope } = err.rateLimit;
+    if (kind === "usage") {
+      // Nothing clears a spent budget before it resets, so say when it returns
+      // rather than retrying into the same wall. A per-title limit is about this
+      // title only; the account's own budget is about everything.
+      const what = scope === "title" ? "this title's limit" : "the daily limit";
+      console.log(`[TheIntroDB] ${what} reached, resumes in ${seconds}s`);
+      core.osd(`TheIntroDB: ${what} reached, resumes in ${formatWait(seconds)}`);
+      return;
+    }
+    // A burst: wait the time the API named, then ask again a couple of times.
+    if (rateLimitRetries >= MAX_RATE_LIMIT_RETRIES) {
+      console.log("[TheIntroDB] rate limited, giving up");
+      core.osd("TheIntroDB: rate limited, giving up for this file");
+      return;
+    }
+    rateLimitRetries++;
+    // The retry reloads whatever file is current by then, which may not be the
+    // one that was limited. Pin it to this generation, so a retry cannot land on
+    // the next file and clear segments that had already loaded.
+    const generation = fileGeneration;
+    console.log(`[TheIntroDB] rate limited, retrying in ${seconds}s`);
+    core.osd(`TheIntroDB: rate limited, retrying in ${formatWait(seconds)}`);
+    setTimeout(() => {
+      if (generation !== fileGeneration) {
+        console.log("[TheIntroDB] the file changed before the retry; not reloading");
+        return;
+      }
+      loadForCurrentFile().catch((e) => {
+        console.log(`[TheIntroDB] retry after rate limit failed: ${e}`);
+      });
+    }, seconds * 1000);
     return;
   }
 
@@ -201,6 +240,8 @@ event.on("iina.window-loaded", () => {
   setInterval(tick, 400);
 
   event.on("iina.file-loaded", () => {
+    rateLimitRetries = 0; // a new file gets its own retry budget
+    fileGeneration++; // and invalidates any retry scheduled for the last one
     loadAutoSkipPrefs();
     loadForCurrentFile().catch((err) => {
       console.log(`[TheIntroDB] loadForCurrentFile failed: ${err}`);
