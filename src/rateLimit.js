@@ -44,12 +44,14 @@ function numeric(value) {
 }
 
 /**
- * Reads a 429 into `{ kind, seconds, code }`.
+ * Reads a 429 into `{ kind, seconds, code, scope }`.
  *
- * `kind` is "rate" (a burst: retry after the wait) or "usage" (the day's budget
- * is spent: stop until the window rolls over). `seconds` is always usable,
- * clamped to 1..86400 -- never down to the burst window, which is the clamp that
- * turns "come back tomorrow" into "come back in five minutes".
+ * `kind` is "rate" (a burst: retry after the wait) or "usage" (a budget is
+ * spent: stop until it resets). `scope` says which budget: "title" for
+ * `specific_media_usage_limit_exceeded`, which is spent for one media target
+ * only, and "account" for the caller's daily budget. `seconds` is always
+ * usable, clamped to 1..86400 -- never down to the burst window, which is the
+ * clamp that turns "come back tomorrow" into "come back in five minutes".
  *
  * Accepts the parsed body or the raw text, and survives neither being JSON.
  */
@@ -82,7 +84,11 @@ export function rateLimitFrom(body) {
         ? "usage"
         : "rate";
 
-  return { kind, seconds, code };
+  // Only the per-title code is spent for one target; anything else -- including
+  // a duration-only guess -- is the caller's own budget.
+  const scope = code === "specific_media_usage_limit_exceeded" ? "title" : "account";
+
+  return { kind, seconds, code, scope };
 }
 
 /** "10s", "~2m", "~14.0h" -- for a message a person reads. */
