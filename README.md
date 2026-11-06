@@ -1,4 +1,4 @@
-<img align="right" width="88" src="https://raw.githubusercontent.com/TheIntroDB/theintrodb-assets/main/integrations/iina.png" alt="IINA">
+<img align="right" width="88" src="https://raw.githubusercontent.com/TheIntroDB/.github/main/integrations/iina.png" alt="IINA">
 
 [![IINA macOS](https://img.shields.io/badge/IINA-macOS-000000?style=flat-square&logo=apple&logoColor=4ade80&labelColor=0d0d0d)](https://iina.io)
 [![License](https://img.shields.io/github/license/TheIntroDB/iina-package?style=flat-square&logo=gnu&logoColor=4ade80&label=License&labelColor=0d0d0d&color=038939)](https://github.com/TheIntroDB/iina-package/blob/main/LICENSE)
