@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 TheIntroDB
+
 // Asserts the shipped bundles carry the endpoint the source names.
 //
 // IINA installs straight from this repo, so dist/ IS the plugin: a source-only

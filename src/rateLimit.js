@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 TheIntroDB
+
 // How long to wait out a 429 from TheIntroDB, and which of the two it is.
 //
 // The API shapes both of its 429s the same way -- same JSON keys, same

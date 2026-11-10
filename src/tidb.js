@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 TheIntroDB
+
 import { parseTitle } from "@fifth/scene-parser";
 
 import { RateLimitError, rateLimitFrom } from "./rateLimit";
